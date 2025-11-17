@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://choux-croquant.github.io/',
+  site: 'https://choux-croquant.github.io',
   base: '/',
   integrations: [mdx(), sitemap()],
 
