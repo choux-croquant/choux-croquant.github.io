@@ -3,6 +3,25 @@
   https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
   License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
  */
+@import "tailwindcss";
+
+@theme {
+  --color-mint: oklch(0.72 0.11 178);
+  --color-blue: #2e53a2;
+  --color-yellow: #ffe066;
+  --color-red: #de2727;
+  --color-green: #4dad5b;
+  --color-dark: #454D4B;
+  --color-pink: #f25faf;
+  --color-cyan: #00f5e0;
+  --color-magenta: #ed53e0;
+  --color-orange: #ffac43;
+  --color-gray: #bcbcbc;
+  --color-dark-900: #1a1a1a;
+
+  --font-stardust: "PF-stardust";
+  --font-atkinson: "Atkinson";
+}
 
 :root {
 	--accent: #2337ff;
@@ -30,8 +49,44 @@
 	font-style: normal;
 	font-display: swap;
 }
+@font-face {
+  font-family: 'PF-stardust';
+  src: url('/fonts/PF-stardust.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'PF-stardust';
+  src: url('/fonts/PF-stardust-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'PF-stardust';
+  src: url('/fonts/PF-stardust-extrabold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #bbb transparent;
+}
 body {
-	font-family: "Atkinson", sans-serif;
+	font-family: "PF-stardust", sans-serif;
 	margin: 0;
 	padding: 0;
 	text-align: left;
@@ -42,12 +97,6 @@ body {
 	color: rgb(var(--gray-dark));
 	font-size: 20px;
 	line-height: 1.7;
-}
-main {
-	width: 720px;
-	max-width: calc(100% - 2em);
-	margin: auto;
-	padding: 3em 1em;
 }
 h1,
 h2,
