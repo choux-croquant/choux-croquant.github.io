@@ -17,14 +17,13 @@ posts.forEach((post) => {
 const categories = Object.entries(categoriesObj);
 ---
 
-<html lang="en" class="h-full">
+<html lang="en">
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
-  <body class="bg-yellow h-full font-body">
-    <div class="flex flex-col h-screen">
-      <Header />
+  <body>
+	<Header />
+    <div class="flex flex-col h-full">
       <main class="flex-1 p-4 overflow-y-hidden">
         <BlogCategoryIsland client:load categories={categories} posts={posts} />
       </main>

@@ -6,7 +6,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
 
   return (
     <div
-      className="flex flex-col mx-auto gap-2 max-w-4xl md:flex-row md:gap-4"
+      className="flex flex-col mx-auto gap-2 max-w-4xl md:flex-row md:gap-4 h-full"
     >
       <aside
         className="
@@ -46,8 +46,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
       {/* Post section */}
       <section
         className="
-          flex-1 min-w-0 h-[65vh] max-h-[65vh] overflow-y-auto p-1
-          md:h-[80vh] md:max-h-[80vh] md:p-0
+          flex-1 min-w-0 h-full overflow-y-scroll p-1 md:p-0
         "
       >
         <ul className="flex flex-col gap-2 px-1 py-2 md:gap-6 md:px-2">
@@ -67,7 +66,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
                         className="rounded w-full mb-1 max-h-44 object-cover md:mb-2"
                     />
                   )}
-                  <h4 className="title text-2xl font-pixel">{post.data.title}</h4>
+                  <h4 className="title text-2xl font-bold">{post.data.title}</h4>
                   <p className="date text-xs text-red">
                     {post.data.pubDate.toLocaleDateString()}
                   </p>

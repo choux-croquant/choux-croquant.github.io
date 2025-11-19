@@ -88,7 +88,8 @@
 body {
 	font-family: "PF-stardust", sans-serif;
 	margin: 0;
-	padding: 0;
+	height: 100vh;
+	padding-top: 72px;
 	text-align: left;
 	background: linear-gradient(var(--gray-gradient)) no-repeat;
 	background-size: 100% 600px;
@@ -162,6 +163,9 @@ code {
 pre {
 	padding: 1.5em;
 	border-radius: 8px;
+	white-space: pre-wrap;
+  	word-break: break-word;
+  	overflow-wrap: break-word;
 }
 pre > code {
 	all: unset;
