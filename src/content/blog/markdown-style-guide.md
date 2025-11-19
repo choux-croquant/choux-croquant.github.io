@@ -1,8 +1,9 @@
 ---
-title: 'Markdown Style Guide'
+title: '마크다운 스타일 가이드'
 description: 'Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.'
 pubDate: 'Jun 19 2024'
-heroImage: '../../assets/blog-placeholder-1.jpg'
+heroImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdEyDsjLeuMJZu1zRqcsVNUt9_jpomLl5aZg&s'
+category: 'Basd'
 ---
 
 Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.
