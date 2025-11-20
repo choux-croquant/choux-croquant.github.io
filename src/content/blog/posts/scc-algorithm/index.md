@@ -2,8 +2,9 @@
 title: 'SCC algorithm'
 description: 'Study and implementation of scc algorithm. Tarjan`s algorithm and Kosaraju`s algorithm'
 pubDate: 'Nov 15 2025'
-heroImage: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdEyDsjLeuMJZu1zRqcsVNUt9_jpomLl5aZg&s'
-category: 'Basd'
+thumbnail: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdEyDsjLeuMJZu1zRqcsVNUt9_jpomLl5aZg&s'
+category: 'CSE'
+subCategory: 'Algorithm'
 ---
 
 유향그래프에서 임의의 두 정점 u, v에 대해 u→v, v→u인 경로가 모두 존재하면 두 점은 SCC의 집합 요소임. 사이클이 발생한 정점들은 모두 같은 SCC집합의 요소. 
