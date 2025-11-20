@@ -59,76 +59,76 @@ export default function BlogCategoryIsland({ categories, posts }) {
       >
         <p className="mb-2 text-base font-stardust font-extrabold text-text-black md:mb-4 md:text-lg">Category</p>
         <ul
-  className="
+          className="
     flex overflow-x-auto gap-2 pb-2 -mx-2 px-2 scrollbar-thin scrollbar-thumb-accent scrollbar-track-transparent
     md:flex-col md:overflow-x-visible md:gap-0 md:pb-0 md:mx-0 md:px-0
     md:space-y-2
   "
->
-  {categories.map(([name, count, subcategories]) => (
-  <li key={name} className="flex-shrink-0 md:flex-shrink md:w-full">
-    <div className="flex">
-      {selectedCategory === name && !selectedSubCategory ? (
-        <span className="mr-2 flex items-center">
-          <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
-            <polygon points="0,0 0,14 8,7" fill="currentColor" />
-          </svg>
-        </span>
-      ) : (
-        <div className="flex items-center shrink-0 w-4 h-[50px]"></div>
-      )}
-      <button
-        className={`
+        >
+          {categories.map(([name, count, subcategories]) => (
+            <li key={name} className="flex-shrink-0 md:flex-shrink md:w-full">
+              <div className="flex">
+                {selectedCategory === name && !selectedSubCategory ? (
+                  <span className="mr-2 flex items-center">
+                    <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+                      <polygon points="0,0 0,14 8,7" fill="currentColor" />
+                    </svg>
+                  </span>
+                ) : (
+                  <div className="flex items-center shrink-0 w-4 h-[50px]"></div>
+                )}
+                <button
+                  className={`
           min-w-[100px] max-w-xs bg-surface text-text-black font-bold
           flex w-full justify-between items-center p-2 rounded-md font-pixel text-left transition
           relative
           md:min-w-0 md:w-full
           ${selectedCategory === name && !selectedSubCategory
-            ? "bg-primary text-bg"
-            : "hover:bg-primary hover:text-bg"}
+                      ? "bg-primary text-bg"
+                      : "hover:bg-primary hover:text-bg"}
         `}
-        onClick={() => onCategorySelect(name)}
-      >
-        <span>{name}</span>
-        <span className="ml-2 text-xs opacity-70">{count}</span>
-      </button>
-    </div>
-    {selectedCategory === name && Array.isArray(subcategories) && (
-      <ul className="ml-7 mt-1 space-y-1 md:ml-7">
-        {subcategories.map(([subName, subCount]) => (
-          <li key={subName}>
-            <div className="flex">
-              {selectedSubCategory === subName ? (
-                <span className="mr-2 flex items-center">
-                  <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
-                    <polygon points="0,0 0,14 8,7" fill="currentColor" />
-                  </svg>
-                </span>
-              ) : (
-                <div className="flex items-center shrink-0 w-4 h-[30px]"></div>
-              )}
-              <button
-                className={`
+                  onClick={() => onCategorySelect(name)}
+                >
+                  <span>{name}</span>
+                  <span className="ml-2 text-xs opacity-70">{count}</span>
+                </button>
+              </div>
+              {selectedCategory === name && Array.isArray(subcategories) && (
+                <ul className="ml-7 mt-1 space-y-1 md:ml-7">
+                  {subcategories.map(([subName, subCount]) => (
+                    <li key={subName}>
+                      <div className="flex">
+                        {selectedSubCategory === subName ? (
+                          <span className="mr-2 flex items-center">
+                            <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
+                              <polygon points="0,0 0,14 8,7" fill="currentColor" />
+                            </svg>
+                          </span>
+                        ) : (
+                          <div className="flex items-center shrink-0 w-4 h-[30px]"></div>
+                        )}
+                        <button
+                          className={`
                   bg-surface text-text-black p-1 px-2 rounded
                   font-pixel text-left w-full flex items-center gap-2 transition
                   hover:bg-accent hover:text-bg
                   ${selectedSubCategory === subName
-                    ? "bg-accent text-bg font-extrabold"
-                    : ""}
+                              ? "bg-accent text-bg font-extrabold"
+                              : ""}
                 `}
-                onClick={() => onSubCategorySelect(subName)}
-              >
-                <span className="font-bold text-[13px]">{subName}</span>
-                <span className="text-xs opacity-60">{subCount}</span>
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    )}
-  </li>
-))}
-</ul>
+                          onClick={() => onSubCategorySelect(subName)}
+                        >
+                          <span className="font-bold text-[13px]">{subName}</span>
+                          <span className="text-xs opacity-60">{subCount}</span>
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
       </aside>
       {/* Post section */}
       <section className="flex-1 min-w-0 h-full overflow-y-scroll p-1 md:p-0">
