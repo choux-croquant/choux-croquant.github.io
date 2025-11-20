@@ -6,15 +6,39 @@ import Header from '../../components/Header.astro';
 import BlogCategoryIsland from "../../components/blog/BlogCategoryIsland.jsx";
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 
+type CategoriesMap = {
+  [mainCategory: string]: {
+    count: number;
+    subs: {
+      [subCategory: string]: number;
+    };
+  };
+};
+
+type CategoryEntry =
+  | [string, number]
+  | [string, number, Array<[string, number]>];
+
+
 const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const categoriesObj: Record<string, number> = {};
+const categoriesMap: CategoriesMap = {};
 
 posts.forEach((post) => {
-  const category = post.data.category || '기타';
-  categoriesObj[category] = (categoriesObj[category] || 0) + 1;
+  const main = post.data.category || '기타';
+  const sub = post.data.subCategory;
+  if (!categoriesMap[main]) categoriesMap[main] = { count: 0, subs: {} };
+  categoriesMap[main].count += 1;
+  if (sub) {
+    categoriesMap[main].subs[sub] = (categoriesMap[main].subs[sub] || 0) + 1;
+  }
 });
 
-const categories = Object.entries(categoriesObj);
+const categories: CategoryEntry[] = Object.entries(categoriesMap).map(([name, { count, subs }]) => {
+  const subsArr = Object.entries(subs);
+  return subsArr.length
+    ? [name, count, subsArr]
+    : [name, count];
+});
 ---
 
 <html lang="en">

@@ -6,34 +6,45 @@
 @import "tailwindcss";
 
 @theme {
-  --color-mint: oklch(0.72 0.11 178);
-  --color-blue: #2e53a2;
-  --color-yellow: #ffe066;
-  --color-red: #de2727;
-  --color-green: #4dad5b;
-  --color-dark: #454D4B;
-  --color-pink: #f25faf;
-  --color-cyan: #00f5e0;
-  --color-magenta: #ed53e0;
-  --color-orange: #ffac43;
-  --color-gray: #bcbcbc;
-  --color-dark-900: #1a1a1a;
-
+  --color-text-black: #181010;
+  --color-line: #181010;
+  --color-primary: #f7b58c;
+  --color-accent: #84739c;
+  --color-surface: #ffefff;
+  
   --font-stardust: "PF-stardust";
+  --font-stardust-b: "PF-stardust-bold";
+  --font-stardust-eb: "PF-stardust-extra-bold";
   --font-atkinson: "Atkinson";
 }
-
-:root {
-	--accent: #2337ff;
-	--accent-dark: #000d8a;
-	--black: 15, 18, 25;
-	--gray: 96, 115, 159;
-	--gray-light: 229, 233, 240;
-	--gray-dark: 34, 41, 57;
-	--gray-gradient: rgba(var(--gray-light), 50%), #fff;
-	--box-shadow:
-		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%), 0 16px 32px
-		rgba(var(--gray), 33%);
+.theme-sgb {
+  --color-line: #181010;
+  --color-primary: #f7b58c;
+  --color-accent: #84739c;
+  --color-surface: #ffefff;
+}
+.sgb-window {
+  position: relative;
+  border: 3px solid var(--color-line);
+  border-radius: 8px;
+  outline: 2px solid var(--color-line);
+  outline-offset: -6px;
+}
+.sgb-window::before {
+  content: '';
+  position: absolute;
+  width: calc(100% - 4px);
+  top: 2px;
+  left: 2px;
+  right: 6px;
+  height: 6px;
+  background: linear-gradient(180deg, rgba(0,0,0,1) 80%, transparent);
+  border-radius: 2px;
+  z-index: 1;
+  pointer-events: none;
+  clip-path: inset(0 0 0 0 round 12px 12px 0 0);
+}
+.sgb-window::after {
 }
 @font-face {
 	font-family: "Atkinson";
