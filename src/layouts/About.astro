@@ -8,7 +8,7 @@ import Header from '../components/Header.astro';
 
 type Props = CollectionEntry<'blog'>['data'];
 
-const { title, description, pubDate, updatedDate, thumbnail, migrated } = Astro.props;
+const { title, description, updatedDate, thumbnail, migrated } = Astro.props;
 ---
 
 <html lang="en">
@@ -34,17 +34,6 @@ const { title, description, pubDate, updatedDate, thumbnail, migrated } = Astro.
 				<div class="prose">
 					<div class="py-6 text-center font-extrabold">
 						<h1>{title}</h1>
-						<div class="mb-1 text-gray-500">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-							{migrated && <div class="text-gray-500 text-sm">Migrated from previous post</div>}
-						</div>
 						<hr />
 					</div>
 					<slot />

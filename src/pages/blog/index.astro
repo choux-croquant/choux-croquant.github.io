@@ -1,9 +1,9 @@
 ---
-import { getCollection } from "astro:content";
+import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
-import BlogCategoryIsland from "../../components/blog/BlogCategoryIsland.jsx";
+import BlogCategoryIsland from '../../components/blog/BlogCategoryIsland.jsx';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../../consts';
 
 type CategoriesMap = {
@@ -15,12 +15,11 @@ type CategoriesMap = {
   };
 };
 
-type CategoryEntry =
-  | [string, number]
-  | [string, number, Array<[string, number]>];
+type CategoryEntry = [string, number] | [string, number, Array<[string, number]>];
 
-
-const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 const categoriesMap: CategoriesMap = {};
 
 posts.forEach((post) => {
@@ -35,9 +34,7 @@ posts.forEach((post) => {
 
 const categories: CategoryEntry[] = Object.entries(categoriesMap).map(([name, { count, subs }]) => {
   const subsArr = Object.entries(subs);
-  return subsArr.length
-    ? [name, count, subsArr]
-    : [name, count];
+  return subsArr.length ? [name, count, subsArr] : [name, count];
 });
 ---
 
@@ -46,7 +43,7 @@ const categories: CategoryEntry[] = Object.entries(categoriesMap).map(([name, { 
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body>
-	<Header />
+    <Header />
     <div class="flex flex-col h-full">
       <main class="flex-1 p-4 overflow-y-hidden">
         <BlogCategoryIsland client:load categories={categories} posts={posts} />
@@ -55,4 +52,3 @@ const categories: CategoryEntry[] = Object.entries(categoriesMap).map(([name, { 
     </div>
   </body>
 </html>
-
