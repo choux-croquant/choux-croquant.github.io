@@ -141,7 +141,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
                 key={post.id}
               >
                 <a href={`/blog/${post.id}/`} className="block space-y-2">
-                  {post.data.thumbnail && (
+                  {/* {post.data.thumbnail && (
                     <div className="w-full aspect-[16/9] rounded overflow-hidden">
                       <img
                         src={post.data.thumbnail}
@@ -149,7 +149,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                  )}
+                  )} */}
                   <h4 className="title text-2xl font-bold text-text-black">{post.data.title}</h4>
                   <p className="date text-xs text-text-black">
                     {post.data.pubDate.toLocaleDateString()}
