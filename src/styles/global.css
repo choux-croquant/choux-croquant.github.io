@@ -171,6 +171,24 @@ a:hover {
 	margin-bottom: 2em;
 }
 
+.prose ul,
+.prose ol {
+	margin: 1em 0;
+	padding-left: 1.5em;
+}
+
+.prose ul {
+	list-style-type: disc;
+}
+
+.prose ol {
+	list-style-type: decimal;
+}
+
+.prose p>img {
+	margin: auto;
+}
+
 textarea {
 	width: 100%;
 	font-size: 16px;
