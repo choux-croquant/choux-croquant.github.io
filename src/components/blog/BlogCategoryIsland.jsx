@@ -71,7 +71,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
                 {selectedCategory === name && !selectedSubCategory ? (
                   <span className="mr-2 flex items-center">
                     <svg width="8" height="14" viewBox="0 0 8 14" fill="none">
-                      <polygon points="0,0 0,14 8,7" fill="currentColor" />
+                      <polygon points="0,0 0,14 8,7" fill="black" />
                     </svg>
                   </span>
                 ) : (
