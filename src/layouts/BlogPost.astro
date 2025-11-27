@@ -11,7 +11,7 @@ type Props = CollectionEntry<'blog'>['data'];
 const { title, description, pubDate, updatedDate, thumbnail, migrated } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="ko">
 	<head>
 		<BaseHead title={title} description={description} />
 		<style>
@@ -29,7 +29,7 @@ const { title, description, pubDate, updatedDate, thumbnail, migrated } = Astro.
 		</style>
 	</head>
 
-	<body>
+	<body class="bg-white text-black dark:bg-black dark:text-white">
 		<Header />
 		<main class="overflow-y-hidden mx-auto max-w-5xl">
 			<article>

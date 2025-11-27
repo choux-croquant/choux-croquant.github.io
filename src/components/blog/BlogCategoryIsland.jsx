@@ -150,7 +150,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
                       />
                     </div>
                   )} */}
-                  <h4 className="title text-2xl font-bold text-text-black">{post.data.title}</h4>
+                  <p className="text-2xl font-bold text-text-black">{post.data.title}</p>
                   <p className="date text-xs text-text-black">
                     {post.data.pubDate.toLocaleDateString()}
                   </p>
@@ -158,7 +158,7 @@ export default function BlogCategoryIsland({ categories, posts }) {
               </li>
             ))
           ) : (
-            <li className="text-center text-text-black mt-4 md:mt-12 opacity-60">
+            <li className="text-center text-text-black mt-4 md:mt-12 opacity-60 dark:text-white">
               선택된 카테고리에 게시글이 없습니다.
             </li>
           )}
