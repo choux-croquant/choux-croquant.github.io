@@ -167,7 +167,7 @@ a:hover {
 }
 
 .prose p {
-	margin-bottom: 2em;
+	margin-bottom: 1em;
 }
 
 .prose ul,
@@ -208,6 +208,7 @@ code {
 }
 
 pre {
+	margin-bottom: 1rem;
 	padding: 1.5em;
 	border-radius: 8px;
 	/* white-space: pre-wrap; */
@@ -257,4 +258,14 @@ hr {
 	clip-path: inset(50%);
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
+}
+
+/* astro-embed 중앙정렬을 위한 클래스 */
+lite-youtube,
+astro-embed-youtube,
+iframe[src*="youtube.com/embed"] {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 2rem;
 }
