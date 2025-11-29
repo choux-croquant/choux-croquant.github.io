@@ -1,0 +1,273 @@
+---
+title: 'Transformation in computer graphics'
+description: 'Summary of transformation concept in computer graphics'
+pubDate: 'March 10 2025'
+thumbnail: ''
+category: 'CSE'
+subCategory: 'Graphics'
+migrated: true
+---
+import Caption from '../../../../components/Caption.tsx';
+
+컴퓨터 그래픽스에서의 Transformation에 대한 내용을 개인적으로 정리하고 복습하기 위한 내용입니다.
+
+### **Transformation**
+
+근본적으로 벡터를 다른 벡터로 변환하는 연산을 의미한다. 컴퓨터 그래픽스에서는 벡터의 변환을 통해서 물체의 변형과 이동을 계산하거나, 오브젝트를 좌표계를 다른 좌표계로 해석하는 
+것을 통해 사용자의 화면에 World를 투영하거나, 모델의 Skeleton-Bone구조를 구축하는 등 다양한 용도로 활용되기 때문에 그 의미를 이해하는 것이 중요하다.
+
+행렬 $A$와 벡터 $\mathbf{x}$에 대해
+
+$$
+\mathbf{y} = A\mathbf{x}
+$$
+
+와 같이 표현하면, 벡터 x를 변환(Transformation) T에 넣어 y를 얻는다란 의미다.
+
+$$
+T(\mathbf{x}) = A\mathbf{x}
+$$
+
+이때 T는 벡터의 변환을 수행하는 함수이며, 행렬 A는 T라는 변환의 동작을 좌표계 기준에서 표현한 것으로 볼 수 있다.
+즉, (T: V -> V)를 기저 벡터의 형태로 본 것이 행렬이다.
+
+표준 기저의 2차원 좌표계에서 벡터를 상수배하는 변환을 기준으로 보면, 우선 표준 기저는 아래와 같다.
+
+$$
+\mathbf{e}_1 =
+\begin{bmatrix}1 \\ 0\end{bmatrix},
+\quad
+\mathbf{e}_2 =
+\begin{bmatrix}0 \\ 1\end{bmatrix}
+$$
+
+여기서 \(x\) 방향으로는 2배, \(y\) 방향으로는 3배 스케일하는 선형 변환 \(T\)를 정의해보면.
+함수적인 표현으로는 다음과 같이 나타낼 수 있다.
+
+$$
+T(x, y) = (2x, 3y)
+$$
+
+이걸 표준 기저에 대해 행렬로 표현하면 아래와 같이 나타낼 수 있다.
+
+$$
+A =
+\begin{bmatrix}
+2 & 0 \\
+0 & 3
+\end{bmatrix}
+$$
+
+$$
+T(\mathbf{v}) = A\mathbf{v}
+=
+\begin{bmatrix}
+2 & 0 \\
+0 & 3
+\end{bmatrix}
+\begin{bmatrix}
+x \\ y
+\end{bmatrix}
+=
+\begin{bmatrix}
+2x \\ 3y
+\end{bmatrix}
+$$
+
+벡터의 상수배를 적용하는 연산이 기저벡터에서 어떤 형태의 행렬로 나타나는지 알 수 있다.
+
+### **Linear Transformation**
+
+여러 변형 중 $T: V \rightarrow W$가 벡터 공간 $V$에서 $W$로 가는 함수일 때, 다음 두 조건을 항상 만족하는 $T$를 특별히 선형 변환(linear transformation)이라 부른다.
+
+1. Additivity(덧셈 보존)
+   $$
+   T(\mathbf{u} + \mathbf{v}) = T(\mathbf{u}) + T(\mathbf{v})
+   $$
+2. Homogeneity(스칼라 곱 보존)
+   $$
+   T(a\mathbf{v}) = aT(\mathbf{v})
+   $$
+<br/>
+#### **선형 변환의 특징과 기하적 해석**
+
+- 기저를 고정하면 $T \leftrightarrow A$는 일대일 대응이다.
+- Homogeneity에 의해서 원점을 유지한다. $T(\mathbf{0}) = \mathbf{0}$
+- 선형 구조를 보존한다.(선형변환의 조건을 연산 후에도 만족한다.)
+- 위의 특징으로 인해 선형 변환끼리는 자유롭게 결합하여도 기저나 차원을 유지하는 특징이 있기에 유용하게 사용된다.
+
+선형 변환의 예시
+
+- **Scale**  
+  $$
+  \begin{bmatrix}
+  s_x & 0 \\\\ 0 & s_y
+  \end{bmatrix}
+  \begin{bmatrix}
+  x \\\\ y
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+  s_x x \\\\ s_y y
+  \end{bmatrix}
+  $$
+- **Rotation**
+  $$
+  \begin{bmatrix}
+  \cos\theta & -\sin\theta \\\\ \sin\theta & \cos\theta
+  \end{bmatrix}
+  \begin{bmatrix}
+  x \\\\ y
+  \end{bmatrix}
+  $$
+- **Shear**
+  $$
+  \begin{bmatrix}
+  1 & k \\\\ 0 & 1
+  \end{bmatrix}
+  \begin{bmatrix}
+  x \\\\ y
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+  x + k y \\\\ y
+  \end{bmatrix}
+  $$
+
+<br/>
+#### **선형 변환은 기저의 변환이다**
+이 방식의 해석이 컴퓨터 그래픽스에서 다양한 내용들을 이해하고 구현할 때 직관적 이해를 도울 수 있다.
+
+벡터 공간 $V$에서 기저 $B = \{ \mathbf{v}_1, \dots, \mathbf{v}_n \}$를 고정하면, 임의의 벡터 $\mathbf{x} \in V$는
+
+$$
+\mathbf{x} = a_1 \mathbf{v}_1 + a_2 \mathbf{v}_2 + \cdots + a_n \mathbf{v}_n
+$$
+
+처럼 기저의 선형 결합으로 유일하게 표현된다.
+
+선형 변환 $T: V \to V'$가 주어지면, 그 변환의 동작은 선형 변환의 특성에 의해
+
+$$
+T(\mathbf{x}) = T\left( \sum_{j=1}^n a_j \mathbf{v}_j \right ) = \sum_{j=1}^n a_j\,T(\mathbf{v}_j)
+$$
+
+와 같이 표현되며, 기저 벡터 각각에 대한 $T(\mathbf{v}_j)$를 알면 임의의 벡터에 대한 $T$의 동작을 모두 알 수 있다.
+즉, $T$가 모든 $\mathbf{x}$에 대해 어떻게 작동하는가는, 기저 벡터들이 $T$에 의해 어떻게 변환되는지에 대한 정보로 완전히 결정된다.
+
+$T(\mathbf{v}_j)$를 기저 $B$로 나타내면,
+
+$$
+T(\mathbf{v}_j) = a_{1j} \mathbf{v}_1 + \cdots + a_{nj} \mathbf{v}_n
+$$
+
+으로 나타낼 수 있고, 이 계수 $(a_{1j}, ..., a_{nj})$를 j번째 열벡터로 삼아 n개의 벡터를 차례로 세우면 행렬 $A$를 정의할 수 있다.
+
+$$
+A = 
+\begin{bmatrix}
+| & & | \\
+[T(\mathbf{v}_1)]_B & \cdots & [T(\mathbf{v}_n)]_B \\
+| & & |
+\end{bmatrix}
+$$
+
+이러한 관점에서 보면 행렬은 표준기저 관점에서 보았을 때, 각각의 열벡터가 새로운 기저가 됨을 알 수 있다. 즉 선형 변환은 기저의 변환으로 해석할 수 있다.
+<br/>
+
+### **Affine Transform**
+
+아핀 변환은 주로 물체의 이동(Translation)을 표현하기 위해 사용된다. 선형 변환은 그 특성으로 인해 결합하여도 성질을 유지하여 계산에 있어 이점을 얻는다.
+하지만 이동 변환은 아쉽게도 선형 변환이 아니다. 따라서 다른 선형 변환들과 결합할 수 없다.(순서에 따라 결과가 변경된다.) 
+
+Affine transform(아핀 변환)은 이러한 문제를 해결하기 위해 선형 변환과 이동(translation) 을 합친 형태의 변환으로 생각할 수 있으며, 아래와 같이 표현된다.  
+
+$$
+\mathbf{y} = A\mathbf{x} + \mathbf{b}
+$$
+
+- $A$: 선형 변환을 나타내는 행렬 (회전, 스케일, 전단 등)
+- $\mathbf{b}$: 이동(translation)을 나타내는 벡터 (bias)
+
+기하학적으로 보면 아핀 변환은 점을 점으로, 직선을 직선으로, 평면을 평면으로 보낸다. 즉, 평행성(parallelism)은 보존하지만, 길이나 각도는 일반적으로 보존하지 않을 수 있다.
+
+
+일반적으로 컴퓨터 그래픽스에서는 행렬 기반 변환으로 다양한 로직을 처리한다. 이때 실질적으로 선형 변환만이 아니라 이동이 포함된 변환이 필요하다.
+
+ex.
+- 모델 변환 (Model transform)  
+  로컬(모델) 좌표 → 월드 좌표  
+  $$ \mathbf{x}_\text{world} = A_\text{model}\,\mathbf{x}_\text{local} + \mathbf{b}_\text{model} $$
+- 뷰 변환 (View transform)  
+  월드 좌표 → 카메라(뷰) 좌표  
+  $$ \mathbf{x}_\text{view} = A_\text{view}\,\mathbf{x}_\text{world} + \mathbf{b}_\text{view} $$
+
+여기서 $A$ 부분은 회전·스케일·전단 같은 **선형 구조**를 담당하고, $\mathbf{b}$는 카메라나 물체의 **위치**를 표현하는 이동 항(bias) 역할을 한다.
+
+이러한 경우 Affine transform을 쓰면
+
+1. 물체의 방향/크기와 위치를 하나의 수식으로 표현할 수 있고  
+2. 서로 다른 변환들을 행렬 하나로 합성할 수 있다는 장점이 있다.
+<br/>
+#### **Homogeneous Coordinates와 Bias의 결합**
+
+Affine 변환을 행렬 하나로 다루기 위해, 동차 좌표(homogeneous coordinates)의 개념을 사용한다. 
+동차 좌표는 주어진 벡터 공간에서 1차원을 올려 선형 변환이 아니었던 연산을 선형 변환으로 다룰 수 있도록 하는 좌표 표현이다.
+
+동차 좌표를 활용하여 3차원에서의 점 $\mathbf{x} = (x, y, z)$를 다음과 같이 4차원 벡터로 확장한다.
+
+$$
+\tilde{\mathbf{x}} =
+\begin{bmatrix}
+x \\ y \\ z \\ 1
+\end{bmatrix}
+$$
+
+이때 추가로 붙은 차원을 임시차원이라고 하며, 그 값은 일반적으로 0또는 1이다. 0인 경우 방향 벡터로 해석하고, 0이 아닌 경우 3차원 점으로 해석한다.
+
+확장된 4차원 벡터로 Affine 변환
+
+$$
+\mathbf{y} = A\mathbf{x} + \mathbf{b}
+$$
+
+을 다음과 같은 $4 \times 4$ 행렬 하나로 표현한다:
+
+$$
+T =
+\begin{bmatrix}
+A & \mathbf{b} \\
+\mathbf{0}^\top & 1
+\end{bmatrix}
+\quad\Longrightarrow\quad
+\tilde{\mathbf{y}} = T \tilde{\mathbf{x}}
+$$
+
+그렇게 하면 아래과 같이 표현할 수 있다.
+
+$$
+\begin{bmatrix}
+\mathbf{y} \\ 1
+\end{bmatrix}
+=
+\begin{bmatrix}
+A & \mathbf{b} \\
+\mathbf{0}^\top & 1
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{x} \\ 1
+\end{bmatrix}
+$$
+
+이러한 형태를 만들면 다음과 같은 특징이 생긴다.
+
+- 선형 변환 $A$와 bias 벡터 $\mathbf{b}$를 하나의 행렬 $T$로 합칠 수 있다.
+- 여러 Affine 변환을 합성할 때, $$ T_\text{total} = T_3 \, T_2 \, T_1 $$ 처럼 단순 행렬 곱셈으로 연결 가능하다.
+- 예를 들어 MVP행렬을 구성할 때 월드 · 뷰 · 프로젝션 행렬을 전부 곱한 뒤, 정점에 한 번만 곱해 주면 되는 구조가 된다.
+
+그래픽스 관점에서 보면, bias(이동 항)는
+
+- 수학적으로는 Affine 변환의 비선형 부분이지만
+- 구현에서는 동차 좌표로 승격시켜 다른 선형 변환과 똑같이 행렬 곱셈으로 처리되는 항이 된다.
+- 이것이 그래픽스에서 3차원 공간에서 연산을 시행함에도 4x4행렬로 나타내는 이유이다.
+<br/>
