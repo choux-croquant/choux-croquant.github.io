@@ -269,3 +269,9 @@ iframe[src*="youtube.com/embed"] {
 	margin-right: auto;
 	margin-bottom: 2rem;
 }
+
+.link-preview {
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 2rem;
+}

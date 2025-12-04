@@ -1,0 +1,259 @@
+---
+title: 'Welzl`s algorithm'
+description: ''
+pubDate: 'September 10 2025'
+thumbnail: ''
+category: 'CSE'
+subCategory: 'Algorithm'
+migrated: true
+---
+import Caption from '../../../../components/Caption.tsx';
+
+Unreal Engine 플러그인을 제작하는 프로젝트를 진행하면서, 다수의 AI agent들을 이동시키는 과정에서 그 전체적인 형태를 개략적으로 유지시키기 위한 도구 중 하나로 agent를 모두 포함하는 외접구를 구해야 할 필요가 생겼다.
+팀에서는 이 기능을 구현하기 위해 외접원(구)를 빠르게 도출할 수 있는 알고리즘인 Welzl`s algorithm을 사용하게 되었다. 
+나는 다른 부분의 코드를 주로 작성해서 해당 알고리즘의 정확한 동작이나 사용 이유에 대해서는 정확히는 이해하고 있지 않은 상태이기 때문에 알고리즘에 대한 이해를 하기 위해 위해 글을 통해 정리한다.
+
+https://github.com/Dungeon-Station/AdvancedFormationSystem-Plugin/blob/main/Source/AFS/Private/FormationWelzl.cpp
+
+
+## **Welzl 알고리즘?**
+
+Welzl 알고리즘은 임의의 점 집합 \(P\)에 대해 모든 점을 포함하는 최소 반지름의 원(3차원 확장 시 구)를 O(N) 정도의 시간에 구하는 알고리즘이다.
+다음과 같은 아이디어로 동작한다.
+
+1. 항상 현재까지 처리한 점들을 덮는 최소 외접원을 유지한다.
+2. 점들을 랜덤한 순서로 섞은 뒤, 한 점씩 추가해 가며:
+    - 새로운 점 p가 기존 원 안에 있으면 → 이미 포함되므로 원의 변화가 없다.
+    - 새로운 점 p가 기존 원 밖에 있으면 → 최소 외접원의 경계(boundary) 에 반드시 p가 포함되어야 한다.
+3. 경계 집합 R은 현재 원을 결정하는 점들이며 2차원의 경우 최대 3개, 3차원의 경우 최대 4개의 원소로 구성된다.(원과 구의 성질)
+
+이 구조를 재귀적으로 시행하는 구조의 알고리즘이다.
+
+![](./1.jpg)
+<Caption text="새로운 점 P가 현재까지의 최소 외접원의 바깥에 있는 경우의 예시"/>
+
+만약 최소 외접원을 구할 때 외접원을 이루는 집합에 대해 모두 검사하는 Brute-force방식으로 검사하면,
+접 2개의 조합을 구하여 해당 조합에 대해 모든 점이 포함되는지 검사 + 점 3개의 조합을 구하여 해당 조합에 대해 모든 점이 포함되는지 검사의 로직으로 시행되어 
+O(N^2 * N) + O(N^3 * N) -> O(N^4) 정도의 시간 복잡도로 시행된다.
+
+Welzl 알고리즘은 순회 자체는 1번만 하게 되어 일반적인 경우 O(N)으로 동작하여 시간적으로 효율적으로 동작한다.
+확률적으로 새로운 점이 이전까지의 외접원에 포함될 확률이 높은 성질을 이용하는 방식이다.
+다만 모든 점이 외접원의 경계 부근에 존재하는 등 특수한 케이스에서 재귀 시행이 늘어나며 외접구가 계속하여 갱신되는 경우 시간복잡도가 크게 증가할 수 있다.
+<br/>
+### **Entry point**
+
+```cpp
+FCircle FFormationWelzl::GetMinimumEnclosingCircle(const TArray<FVector2D>& Points)
+{
+    ...
+    TArray<FVector2D> ShuffledPoints = Points;
+    const int32 NumPoints = ShuffledPoints.Num();
+    for (int32 i = NumPoints - 1; i > 0; --i)
+    {
+        const int32 j = FMath::RandRange(0, i);
+        ShuffledPoints.Swap(i, j);
+    }
+
+    return WelzlRecursive(ShuffledPoints, {});
+}
+```
+- 기대 \(O(N)\) 시간 보장을 위해 점 순서를 랜덤하게 섞는다.
+- R(경계 포인트 집합)을 비운 상태에서 재귀를 시작한다.
+
+### **재귀적으로 경계 집합 구하기**
+
+```cpp
+FCircle FFormationWelzl::WelzlRecursive(TArray<FVector2D> P, TArray<FVector2D> R)
+{
+    if (P.Num() == 0 || R.Num() == 3) return MakeCircleFromBoundary(R);
+
+    const FVector2D p = P.Pop();
+    FCircle mec = WelzlRecursive(P, R);
+
+    if (FVector2D::DistSquared(mec.Center, p) < FMath::Square(mec.Radius) + KINDA_SMALL_NUMBER) return mec;
+
+    R.Add(p);
+    return WelzlRecursive(P, R);
+}
+```
+- 더 이상 처리할 점이 없거나 R에 점이 3개 있으면, R이 현재 외접원을 완전히 규정하므로 `MakeCircleFromBoundary(R)`을 호출한다.
+- 재귀적으로 다음의 동작을 수행한다.
+  1. 집합 `P`에서 하나의 점 `p`를 꺼낸다.
+  2. `p`가 제외된 상태에서 에서 최소 외접원 `mec`를 계산한다.
+  3. `p`가 `mec` 안에 있으면 → `mec`는 `p`를 포합한모든 점을 덮으므로 그대로 반환한다.
+  4. `p`가 `mec` 밖에 있으면 → 최종 해의 경계에 p가 반드시 포함되어야 하므로, `R`에 `p`를 추가한 뒤 다시 재귀 호출한다.
+
+###  **경계 집합에서 원 구성하기**
+
+```cpp
+FCircle FFormationWelzl::MakeCircleFromBoundary(const TArray<FVector2D>& R)
+{
+    const int32 NumPoints = R.Num();
+    if (NumPoints == 0) return FCircle();
+    if (NumPoints == 1) return FCircle(R, 0.f);
+    if (NumPoints == 2)
+    {
+        FVector2D Center = (R + R) / 2.0f;
+        float Radius = FVector2D::Distance(R, R) / 2.0f;
+        return FCircle(Center, Radius);
+    }
+    if (NumPoints == 3)
+    {
+        return MakeCircleFromThreePoints(R, R, R);
+    }
+    ...
+}
+```
+- `R` 크기에 따라 케이스 분류
+  - 0~1개: 예외 처리, 기본 원.
+  - 2개: 두 점을 지름으로 하는 원.
+  - 3개: 세 점의 외접원 구하기.
+
+### **세 점의 외접원**
+```cpp
+FCircle FFormationWelzl::MakeCircleFromThreePoints(const FVector2D& P1, const FVector2D& P2, const FVector2D& P3)
+{
+    const float D = 2.0f * (P1.X * (P2.Y - P3.Y) + P2.X * (P3.Y - P1.Y) + P3.X * (P1.Y - P2.Y));
+
+    if (FMath::Abs(D) < KINDA_SMALL_NUMBER)
+    {
+        const float d12 = FVector2D::DistSquared(P1, P2);
+        const float d13 = FVector2D::DistSquared(P1, P3);
+        const float d23 = FVector2D::DistSquared(P2, P3);
+
+        if (d12 >= d13 && d12 >= d23)
+            return FCircle((P1 + P2) / 2.0f, FVector2D::Distance(P1, P2) / 2.0f);
+        if (d13 >= d12 && d13 >= d23)
+            return FCircle((P1 + P3) / 2.0f, FVector2D::Distance(P1, P3) / 2.0f);
+
+        return FCircle((P2 + P3) / 2.0f, FVector2D::Distance(P2, P3) / 2.0f);
+    }
+
+    const float P1_sq = P1.SizeSquared();
+    const float P2_sq = P2.SizeSquared();
+    const float P3_sq = P3.SizeSquared();
+
+    const float CenterX = (P1_sq * (P2.Y - P3.Y) + P2_sq * (P3.Y - P1.Y) + P3_sq * (P1.Y - P2.Y)) / D;
+    const float CenterY = (P1_sq * (P3.X - P2.X) + P2_sq * (P1.X - P3.X) + P3_sq * (P2.X - P1.X)) / D;
+
+    FVector2D Center(CenterX, CenterY);
+    float Radius = FVector2D::Distance(Center, P1);
+
+    return FCircle(Center, Radius);
+}
+```
+- D는 세 점이 만드는 행렬식의 2배값으로 0에 가깝다면 세 점이 colinear하다. 이 경우 최소 외접원은 가장 멀리 떨어진 두 점을 지름으로 하는 원이다.
+- 그렇지 않다면, 세 점의 외접원 공식으로 중심과 반지름을 계산한다.
+
+나머지는 해당 로직을 3차원으로 확장한 코드로 기본적인 방식은 크게 다르지 않다.
+
+BOJ에서 해당 알고리즘을 사용한 문제를 풀어볼 수 있다.
+[BOJ 2389 - 세상의 중심에서...](https://www.acmicpc.net/problem/2389)
+
+이 문제는 Brute-force로도 풀리지만 위 내용과 동일한 방식으로 작성해 볼 수 있다.
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+const long double EPS = 1e-12L;
+
+struct Point {
+    long double x, y;
+};
+
+struct Circle {
+    Point c;
+    long double r;
+    Circle() : c{0, 0}, r(0) {}
+    Circle(Point _c, long double _r) : c(_c), r(_r) {}
+};
+
+long double dist2(const Point& a, const Point& b) {
+    long double dx = a.x - b.x;
+    long double dy = a.y - b.y;
+    return dx * dx + dy * dy;
+}
+
+Circle circleFromTwoPoints(const Point& A, const Point& B) {
+    Point center{ (A.x + B.x) / 2.0L, (A.y + B.y) / 2.0L };
+    long double r = sqrtl(dist2(A, B)) / 2.0L;
+    return Circle(center, r);
+}
+
+Circle circleFromThreePoints(const Point& A, const Point& B, const Point& C) {
+    long double D = 2.0L * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+    if (fabsl(D) < EPS) {
+        long double dAB = dist2(A, B);
+        long double dAC = dist2(A, C);
+        long double dBC = dist2(B, C);
+
+        if (dAB >= dAC && dAB >= dBC) return circleFromTwoPoints(A, B);
+        if (dAC >= dAB && dAC >= dBC) return circleFromTwoPoints(A, C);
+        return circleFromTwoPoints(B, C);
+    }
+
+    long double A_sq = A.x * A.x + A.y * A.y;
+    long double B_sq = B.x * B.x + B.y * B.y;
+    long double C_sq = C.x * C.x + C.y * C.y;
+
+    long double CenterX = (A_sq * (B.y - C.y) + B_sq * (C.y - A.y) + C_sq * (A.y - B.y)) / D;
+    long double CenterY = (A_sq * (C.x - B.x) + B_sq * (A.x - C.x) + C_sq * (B.x - A.x)) / D;
+
+    Point center{ CenterX, CenterY };
+    long double r = sqrtl(dist2(center, A));
+    return Circle(center, r);
+}
+
+Circle makeCircleFromBoundary(const vector<Point>& R) {
+    if (R.empty()) return Circle();
+    if (R.size() == 1) return Circle(R[0], 0.0L);
+    if (R.size() == 2) return circleFromTwoPoints(R[0], R[1]);
+    if (R.size() == 3) return circleFromThreePoints(R[0], R[1], R[2]);
+    return Circle();
+}
+
+Circle welzlRecursive(vector<Point>& P, vector<Point> R, int n) {
+    if (n == 0 || R.size() == 3) {
+        return makeCircleFromBoundary(R);
+    }
+
+    Point p = P[n - 1];
+
+    Circle mec = welzlRecursive(P, R, n - 1);
+    
+    long double d2 = dist2(mec.c, p);
+    if (d2 <= mec.r * mec.r + 1e-12L) {
+        return mec;
+    }
+
+    R.push_back(p);
+    return welzlRecursive(P, R, n - 1);
+}
+
+Circle minimumEnclosingCircle(vector<Point> pts) {
+    if (pts.empty()) return Circle();
+
+    random_device rd;
+    mt19937 rng(rd());
+    shuffle(pts.begin(), pts.end(), rng);
+
+    vector<Point> R;
+    return welzlRecursive(pts, R, (int)pts.size());
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+    int N; cin >> N;
+    vector<Point> pts(N);
+    for (int i = 0; i < N; ++i) {
+        cin >> pts[i].x >> pts[i].y;
+    }
+    Circle c = minimumEnclosingCircle(pts);
+    cout << fixed << setprecision(10);
+    cout << (double)c.c.x << ' ' << (double)c.c.y << ' ' << (double)c.r << '\n';
+    return 0;
+}
+```
+<br/>
+### References
+[https://en.wikipedia.org/wiki/Smallest-circle_problem]  
+[https://www.gamedev.net/reference/articles/article2484.asp]
