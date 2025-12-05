@@ -1,7 +1,7 @@
 ---
-title: 'Hungarian algorithm'
+title: 'Welzl`s algorithm'
 description: ''
-pubDate: 'September 11 2025'
+pubDate: 'September 10 2025'
 thumbnail: ''
 category: 'CSE'
 subCategory: 'Algorithm'
@@ -9,205 +9,251 @@ migrated: true
 ---
 import Caption from '../../../../components/Caption.tsx';
 
-Welzl`s algorithm에 이어 플러그인에서 에이전트의 위치 할당을 하기 위해 사용한 알고리즘인 Hungarian algorithm에 대해서도 이해를 위해 글을 통해 정리한다.
+Unreal Engine 플러그인을 제작하는 프로젝트를 진행하면서, 다수의 AI agent들을 이동시키는 과정에서 그 전체적인 형태를 개략적으로 유지시키기 위한 도구 중 하나로 agent를 모두 포함하는 외접구를 구해야 할 필요가 생겼다.
+팀에서는 이 기능을 구현하기 위해 외접원(구)를 빠르게 도출할 수 있는 알고리즘인 Welzl`s algorithm을 사용하게 되었다. 
+나는 다른 부분의 코드를 주로 작성해서 해당 알고리즘의 정확한 동작이나 사용 이유에 대해서는 정확히는 이해하고 있지 않은 상태이기 때문에 알고리즘에 대한 이해를 하기 위해 위해 글을 통해 정리한다.
 
 https://github.com/Dungeon-Station/AdvancedFormationSystem-Plugin/blob/main/Source/AFS/Private/FormationWelzl.cpp
 
 
-### **최적 할당 문제**
+### **Welzl 알고리즘**
 
-최적 할당 문제는 여러 작업을 여러 작업자(또는 기계, 자원)에 배정할 때, 전체 비용을 최소화하거나 이익을 최대화하도록 배정 방법을 찾는 문제를 의미한다.
-대표적인 예시를 들면 다음과 같은 상황이 있다.
+Welzl 알고리즘은 임의의 점 집합 \(P\)에 대해 모든 점을 포함하는 최소 반지름의 원(3차원 확장 시 구)를 O(N) 정도의 시간에 구하는 알고리즘이다.
+다음과 같은 아이디어로 동작한다.
 
-- n개의 작업과 n명의 작업자가 있는 상황.
-- 작업자 i가 작업 j를 수행할 때 드는 비용 $c_{ij}$ 가 주어진다.
-- 각 작업에 정확히 한 명의 작업자를 배정하고, 각 작업자는 정확히 하나의 작업만 맡도록 하면서 총 비용 ∑$c_{ij}$ 가 최소가 되도록 하는 할당 방법을 찾는다.
+1. 항상 현재까지 처리한 점들을 덮는 최소 외접원을 유지한다.
+2. 점들을 랜덤한 순서로 섞은 뒤, 한 점씩 추가해 가며:
+    - 새로운 점 p가 기존 원 안에 있으면 → 이미 포함되므로 원의 변화가 없다.
+    - 새로운 점 p가 기존 원 밖에 있으면 → 최소 외접원의 경계(boundary) 에 반드시 p가 포함되어야 한다.
+3. 경계 집합 R은 현재 원을 결정하는 점들이며 2차원의 경우 최대 3개, 3차원의 경우 최대 4개의 원소로 구성된다.(원과 구의 성질)
 
-이 문제는 cost matrix가 주어졌을 때, 한 행과 한 열에서 각각 하나씩 선택해 전체 합을 최소화하는 문제와 동치로,
-완전 이분 그래프에서 최소 가중치 완전 매칭을 찾는 문제로 볼 수 있다. 
+이 구조를 재귀적으로 시행하는 구조의 알고리즘이다.
+
+![](./1.jpg)
+<Caption text="새로운 점 P가 현재까지의 최소 외접원의 바깥에 있는 경우의 예시"/>
+
+만약 최소 외접원을 구할 때 외접원을 이루는 집합에 대해 모두 검사하는 Brute-force방식으로 검사하면,
+접 2개의 조합을 구하여 해당 조합에 대해 모든 점이 포함되는지 검사 + 점 3개의 조합을 구하여 해당 조합에 대해 모든 점이 포함되는지 검사의 로직으로 시행되어 
+O(N^2 * N) + O(N^3 * N) -> O(N^4) 정도의 시간 복잡도로 시행된다.
+
+Welzl 알고리즘은 순회 자체는 1번만 하게 되어 일반적인 경우 O(N)으로 동작하여 시간적으로 효율적으로 동작한다.
+확률적으로 새로운 점이 이전까지의 외접원에 포함될 확률이 높은 성질을 이용하는 방식이다.
+다만 모든 점이 외접원의 경계 부근에 존재하는 등 특수한 케이스에서 재귀 시행이 늘어나며 외접구가 계속하여 갱신되는 경우 시간복잡도가 크게 증가할 수 있다.
 <br/>
-
-### **Hungarian algorithm**
-
-헝가리안 알고리즘은 최적 할당 문제를 $O(N^3)$ 시간 복잡도로 구하는 알고리즘으로 cost matrix에 다음과 같은 동작을 수행하는 방식으로 작동한다.
-
-1. 행 최소값 빼기
-- 각 행에서 최소값을 그 행 전체에서 빼서, 적어도 하나의 0가 있도록 만든다.
-- 이 연산은 모든 배정에 대해 비용을 동일하게 감소시키므로, 최적해의 상대적 구조는 변하지 않는다.
-
-2. 열 최소값 빼기
-- 각 열에서도 최소값을 빼서, 각 열에도 적어도 하나의 0가 존재하도록 만든다.
-- 마찬가지로 최적 해의 상대적인 비용 비교는 그대로 유지된다.
-
-3. 0이된 값들을 이용해 가능한 매칭 찾기
-- 0이 있는 칸들만 이용해서, 서로 다른 행과 열에서 0을 하나씩을 선택해 최대한 많은 매칭을 만든다.
-- 만약 n개의 0를 선택해 완전 매칭을 만들 수 있다면, 그 매칭이 바로 최적 해가 된다.
-
-4. 완전 매칭이 안 되면 행/열 조정
-- 모든 0를 최소 개수의 일부 행과 일부 열을 선택하여 덮는 과정을 수행하고, 덮이지 않은 칸들 중 가장 작은 값을 찾아, 덮이지 않은 모든 칸에서 그 값을 빼고,
-교차하는 두 직선이 만나는 칸에는 그 값을 더한다. 이를 통해 새로운 0인 칸이 생기면서 최적성이 유지되며, 다시 매칭을 시도할 수 있다.
-
-5. 완전 매칭이 가능해질 때까지 3–4 반복
-- 이 과정을 반복하면 언젠가 0들만으로 완전 매칭을 찾을 수 있고, 그 매칭이 원래 비용 행렬에서의 최적 할당이 된다.
-
-아래는 3x3비용 행렬을 기준으로 하는 알고리즘 동작 예시이다.
-
-아래와 같은 비용 행렬이 있다고 하면,
-
-| 작업자 \ 작업 | 작업 1 | 작업 2 | 작업 3 |
-|--------------|--------|--------|--------|
-| 작업자 1     | 4      | 1      | 3      |
-| 작업자 2     | 2      | 0      | 5      |
-| 작업자 3     | 3      | 2      | 2      |
-
-<br/>
-각 행의 최소값은 순서대로 1, 0, 2이므로, 이를 각 행에서 빼면 다음과 같은 행렬이 된다.
-
-| 작업자 \ 작업 | 작업 1 | 작업 2 | 작업 3 |
-|--------------|--------|--------|--------|
-| 작업자 1     | 3      | 0      | 2      |
-| 작업자 2     | 2      | 0      | 5      |
-| 작업자 3     | 1      | 0      | 0      |
-
-<br/>
-이제 각 행마다 최소 하나 이상의 0이 존재하게 된다. 이제 열을 기준으로도 최소값을 빼주는 작업을 시행하면 다음과 같이 변경된다.
-
-| 작업자 \ 작업 | 작업 1 | 작업 2 | 작업 3 |
-|--------------|--------|--------|--------|
-| 작업자 1     | 2      | 0      | 2      |
-| 작업자 2     | 1      | 0      | 5      |
-| 작업자 3     | 0      | 0      | 0      |
-
-<br/>
-이 상태에서 아직 완전 매칭을 만들 수 없으므로, 최소 행/열을 선택하여 0인 칸을 모두 덮을 수 있도록 행/열을 고른다. 위의 경우 3행과 2열을 선택 시 모든 0을 덮을 수 있다.
-그러면 덮이지 않은 칸 중 가장 작은 비용은 2행 1열의 1이고, 선택되지 않은 행에 대해 이 값을 빼주는 작업을 시행한다.
-
-| 작업자 \ 작업 | 작업 1 | 작업 2 | 작업 3 |
-|--------------|--------|--------|--------|
-| 작업자 1     | 1      | -1      | 1      |
-| 작업자 2     | 0      | -1      | 4      |
-| 작업자 3     | 0      | 2      | 0      |
-
-<br/>
-덮이지 않은 행에 값을 빼주는 작업을 통해 음수값이 발생하였다. 음수를 제거하기 위해서 2열에 다시 1을 더하는 작업을 시행한다.
-
-
-| 작업자 \ 작업 | 작업 1 | 작업 2 | 작업 3 |
-|--------------|--------|--------|--------|
-| 작업자 1     | 1      | 0      | 1      |
-| 작업자 2     | 0      | 0      | 4      |
-| 작업자 3     | 0      | 3      | 0      |
-<br/>
-이 단계에서 작업자1 - 작업2, 작업자2 - 작업 1, 작업자3 - 작업3의 완전 매칭이 발생하였고, 이 경우가 가장 적은 비용으로 작업을 완수할 수 있는 경우다.
-
-<br/>
-아래의 코드는 프로젝트에서 사용한 헝가라인 알고리즘의 구현으로, Formation을 이루는 각각의 Agent들의 움직임이 최소화 되도록 Agent들이 이동해야 하는 자리를 배정하는 문제를 푸는데 사용하였다.
-파라미터로 주어지는 CostMatrix는 Formation을 구성하는 DataAsset으로 부터 추출한다.
+### **Entry point**
 
 ```cpp
-void FFormationHungarian::Solve(const TArray<TArray<float>>& CostMatrix,
-    TArray<int32>& OutRowToCol,
-    TArray<int32>& OutColToRow)
+FCircle FFormationWelzl::GetMinimumEnclosingCircle(const TArray<FVector2D>& Points)
 {
-    const int32 Num = CostMatrix.Num(); 
-    OutRowToCol.Init(-1, Num);
-    OutColToRow.Init(-1, Num);
-
-    TArray<float> RowLabel;   RowLabel.Init(0.0f, Num + 1);   // 각 행의 라벨 u[i]
-    TArray<float> ColLabel;   ColLabel.Init(0.0f, Num + 1);   // 각 열의 라벨 v[j]
-    TArray<int32> ColMatch;   ColMatch.Init(0,     Num + 1);  // ColMatch[col] = 이 열에 매칭된 행
-    TArray<int32> PrevColumn; PrevColumn.Init(0,   Num + 1);  // 증가 경로 복원용 배열 이 열로 오기 전의 열
-
-    // 각 행에 대해, 매칭을 하나씩 늘려가는 작업 수행
-    for (int32 Row = 1; Row <= Num; ++Row)
+    ...
+    TArray<FVector2D> ShuffledPoints = Points;
+    const int32 NumPoints = ShuffledPoints.Num();
+    for (int32 i = NumPoints - 1; i > 0; --i)
     {
-        ColMatch[0] = Row;   // 0번 열(더미 열)에 현재 확장하고자 하는 행 Row 를 연결
-        int32 CurCol = 0;    // 현재 탐색 중인 열 인덱스 초기값
-
-        // Slack[col]: 현재 라벨 상태에서, col 열에 새 0-간선을 만들기 위해 필요한 최소 여유값
-        // Visited[col]: 증가 경로 탐색에서 이미 처리한 열인지 표시
-        TArray<float> Slack;   Slack.Init(FLT_MAX, Num + 1);
-        TArray<bool>  Visited; Visited.Init(false, Num + 1);
-
-        // 증가 경로를 찾거나 라벨을 조정하면서 유효 0-간선을 만들어낼 때까지 반복
-        do
-        {
-            Visited[CurCol] = true;            // 현재 열 방문 표시
-            int32 CurRow = ColMatch[CurCol];   // 이 열에 매칭된 행 (0이면 더미)
-            float BestDelta = FLT_MAX;         // 이번 단계에서 라벨을 얼마나 조정할지의 최소값
-            int32 NextCol = 0;                 // 그에 따라 새로 선택할 열
-
-            // 아직 방문하지 않은 모든 열에 대해 Slack 갱신 및 BestDelta, NextCol 결정
-            for (int32 Col = 1; Col <= Num; ++Col)
-            {
-                if (Visited[Col]) continue;
-
-                // CostDiff = 실제 비용 - (행 라벨 + 열 라벨)
-                // 0 이면 유효 0-간선, 양수면 그만큼 더 라벨을 조정하면 0-간선이 될 수 있음
-                float CostDiff = CostMatrix[CurRow - 1][Col - 1]
-                    - RowLabel[CurRow]
-                    - ColLabel[Col];
-
-                // 해당 열에 대해, 지금까지 본 것들 중 가장 작은 CostDiff 를 Slack 에 저장
-                if (CostDiff < Slack[Col])
-                {
-                    Slack[Col] = CostDiff;
-                    PrevColumn[Col] = CurCol;   // 이 열로 오기 직전의 열(증가 경로 부모) 저장
-                }
-
-                // 가장 작은 Slack 값을 갖는 열을 NextCol 로 선택
-                if (Slack[Col] < BestDelta)
-                {
-                    BestDelta = Slack[Col];
-                    NextCol = Col;
-                }
-            }
-
-            // 라벨과 Slack 을 한 번에 업데이트
-            for (int32 Col = 0; Col <= Num; ++Col)
-            {
-                if (Visited[Col])
-                {
-                    // 트리 안에 있는 열들에 대해서, 그 열에 매칭된 행의 라벨을 올리고, 열 라벨은 내린다.
-                    RowLabel[ColMatch[Col]] += BestDelta;
-                    ColLabel[Col]          -= BestDelta;
-                }
-                else
-                {
-                    // 아직 트리 밖에 있는 열들에 대해서는 Slack 에서 BestDelta 를 빼준다.
-                    // → 어떤 열에서는 Slack 이 0 이 되어 새로운 0-간선이 생긴다.
-                    Slack[Col] -= BestDelta;
-                }
-            }
-
-            // 다음으로 탐색할 열로 이동
-            CurCol = NextCol;
-
-        // ColMatch[CurCol] == 0 이 되는 순간, 매칭되지 않은 열에 도달함
-        } while (ColMatch[CurCol] != 0);
-
-        // 증가 경로를 따라가며 매칭을 업데이트하는 단계
-        // CurCol 는 현재 매칭되지 않은 열에서 시작해, 0번 열까지 거꾸로 올라간다.
-        do
-        {
-            int32 PrevCol = PrevColumn[CurCol];       // 이 열로 오기 전 열
-            ColMatch[CurCol] = ColMatch[PrevCol];     // 이전 열에 매칭돼 있던 행을 현재 열로 옮김
-            CurCol = PrevCol;                         // 한 단계 위(이전 열)로 이동
-        } while (CurCol != 0);                        // 0번 열에 도달하면 증가 경로 처리 끝
+        const int32 j = FMath::RandRange(0, i);
+        ShuffledPoints.Swap(i, j);
     }
 
-    // ColMatch 에 쌓인 열 → 행 매칭 정보를 최종 출력 형식(0-based 인덱스의 행→열, 열→행)으로 변환
-    for (int32 Col = 1; Col <= Num; ++Col)
-    {
-        int32 Row = ColMatch[Col];
-        if (Row > 0)
-        {
-            OutRowToCol[Row - 1] = Col - 1;
-            OutColToRow[Col - 1] = Row - 1;
-        }
-    }
+    return WelzlRecursive(ShuffledPoints, {});
 }
 ```
+- 기대 \(O(N)\) 시간 보장을 위해 점 순서를 랜덤하게 섞는다.
+- R(경계 포인트 집합)을 비운 상태에서 재귀를 시작한다.
 
+### **재귀적으로 경계 집합 구하기**
+
+```cpp
+FCircle FFormationWelzl::WelzlRecursive(TArray<FVector2D> P, TArray<FVector2D> R)
+{
+    if (P.Num() == 0 || R.Num() == 3) return MakeCircleFromBoundary(R);
+
+    const FVector2D p = P.Pop();
+    FCircle mec = WelzlRecursive(P, R);
+
+    if (FVector2D::DistSquared(mec.Center, p) < FMath::Square(mec.Radius) + KINDA_SMALL_NUMBER) return mec;
+
+    R.Add(p);
+    return WelzlRecursive(P, R);
+}
+```
+- 더 이상 처리할 점이 없거나 R에 점이 3개 있으면, R이 현재 외접원을 완전히 규정하므로 `MakeCircleFromBoundary(R)`을 호출한다.
+- 재귀적으로 다음의 동작을 수행한다.
+  1. 집합 `P`에서 하나의 점 `p`를 꺼낸다.
+  2. `p`가 제외된 상태에서 에서 최소 외접원 `mec`를 계산한다.
+  3. `p`가 `mec` 안에 있으면 → `mec`는 `p`를 포합한모든 점을 덮으므로 그대로 반환한다.
+  4. `p`가 `mec` 밖에 있으면 → 최종 해의 경계에 p가 반드시 포함되어야 하므로, `R`에 `p`를 추가한 뒤 다시 재귀 호출한다.
+
+###  **경계 집합에서 원 구성하기**
+
+```cpp
+FCircle FFormationWelzl::MakeCircleFromBoundary(const TArray<FVector2D>& R)
+{
+    const int32 NumPoints = R.Num();
+    if (NumPoints == 0) return FCircle();
+    if (NumPoints == 1) return FCircle(R, 0.f);
+    if (NumPoints == 2)
+    {
+        FVector2D Center = (R + R) / 2.0f;
+        float Radius = FVector2D::Distance(R, R) / 2.0f;
+        return FCircle(Center, Radius);
+    }
+    if (NumPoints == 3)
+    {
+        return MakeCircleFromThreePoints(R, R, R);
+    }
+    ...
+}
+```
+- `R` 크기에 따라 케이스 분류
+  - 0~1개: 예외 처리, 기본 원.
+  - 2개: 두 점을 지름으로 하는 원.
+  - 3개: 세 점의 외접원 구하기.
+
+### **세 점의 외접원**
+```cpp
+FCircle FFormationWelzl::MakeCircleFromThreePoints(const FVector2D& P1, const FVector2D& P2, const FVector2D& P3)
+{
+    const float D = 2.0f * (P1.X * (P2.Y - P3.Y) + P2.X * (P3.Y - P1.Y) + P3.X * (P1.Y - P2.Y));
+
+    if (FMath::Abs(D) < KINDA_SMALL_NUMBER)
+    {
+        const float d12 = FVector2D::DistSquared(P1, P2);
+        const float d13 = FVector2D::DistSquared(P1, P3);
+        const float d23 = FVector2D::DistSquared(P2, P3);
+
+        if (d12 >= d13 && d12 >= d23)
+            return FCircle((P1 + P2) / 2.0f, FVector2D::Distance(P1, P2) / 2.0f);
+        if (d13 >= d12 && d13 >= d23)
+            return FCircle((P1 + P3) / 2.0f, FVector2D::Distance(P1, P3) / 2.0f);
+
+        return FCircle((P2 + P3) / 2.0f, FVector2D::Distance(P2, P3) / 2.0f);
+    }
+
+    const float P1_sq = P1.SizeSquared();
+    const float P2_sq = P2.SizeSquared();
+    const float P3_sq = P3.SizeSquared();
+
+    const float CenterX = (P1_sq * (P2.Y - P3.Y) + P2_sq * (P3.Y - P1.Y) + P3_sq * (P1.Y - P2.Y)) / D;
+    const float CenterY = (P1_sq * (P3.X - P2.X) + P2_sq * (P1.X - P3.X) + P3_sq * (P2.X - P1.X)) / D;
+
+    FVector2D Center(CenterX, CenterY);
+    float Radius = FVector2D::Distance(Center, P1);
+
+    return FCircle(Center, Radius);
+}
+```
+- D는 세 점이 만드는 행렬식의 2배값으로 0에 가깝다면 세 점이 colinear하다. 이 경우 최소 외접원은 가장 멀리 떨어진 두 점을 지름으로 하는 원이다.
+- 그렇지 않다면, 세 점의 외접원 공식으로 중심과 반지름을 계산한다.
+
+나머지는 해당 로직을 3차원으로 확장한 코드로 기본적인 방식은 크게 다르지 않다.
+
+BOJ에서 해당 알고리즘을 사용한 문제를 풀어볼 수 있다.
+[BOJ 2389 - 세상의 중심에서...](https://www.acmicpc.net/problem/2389)
+
+이 문제는 Brute-force로도 풀리지만 위 내용과 동일한 방식으로 작성해 볼 수 있다.
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+const long double EPS = 1e-12L;
+
+struct Point {
+    long double x, y;
+};
+
+struct Circle {
+    Point c;
+    long double r;
+    Circle() : c{0, 0}, r(0) {}
+    Circle(Point _c, long double _r) : c(_c), r(_r) {}
+};
+
+long double dist2(const Point& a, const Point& b) {
+    long double dx = a.x - b.x;
+    long double dy = a.y - b.y;
+    return dx * dx + dy * dy;
+}
+
+Circle circleFromTwoPoints(const Point& A, const Point& B) {
+    Point center{ (A.x + B.x) / 2.0L, (A.y + B.y) / 2.0L };
+    long double r = sqrtl(dist2(A, B)) / 2.0L;
+    return Circle(center, r);
+}
+
+Circle circleFromThreePoints(const Point& A, const Point& B, const Point& C) {
+    long double D = 2.0L * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+    if (fabsl(D) < EPS) {
+        long double dAB = dist2(A, B);
+        long double dAC = dist2(A, C);
+        long double dBC = dist2(B, C);
+
+        if (dAB >= dAC && dAB >= dBC) return circleFromTwoPoints(A, B);
+        if (dAC >= dAB && dAC >= dBC) return circleFromTwoPoints(A, C);
+        return circleFromTwoPoints(B, C);
+    }
+
+    long double A_sq = A.x * A.x + A.y * A.y;
+    long double B_sq = B.x * B.x + B.y * B.y;
+    long double C_sq = C.x * C.x + C.y * C.y;
+
+    long double CenterX = (A_sq * (B.y - C.y) + B_sq * (C.y - A.y) + C_sq * (A.y - B.y)) / D;
+    long double CenterY = (A_sq * (C.x - B.x) + B_sq * (A.x - C.x) + C_sq * (B.x - A.x)) / D;
+
+    Point center{ CenterX, CenterY };
+    long double r = sqrtl(dist2(center, A));
+    return Circle(center, r);
+}
+
+Circle makeCircleFromBoundary(const vector<Point>& R) {
+    if (R.empty()) return Circle();
+    if (R.size() == 1) return Circle(R[0], 0.0L);
+    if (R.size() == 2) return circleFromTwoPoints(R[0], R[1]);
+    if (R.size() == 3) return circleFromThreePoints(R[0], R[1], R[2]);
+    return Circle();
+}
+
+Circle welzlRecursive(vector<Point>& P, vector<Point> R, int n) {
+    if (n == 0 || R.size() == 3) {
+        return makeCircleFromBoundary(R);
+    }
+
+    Point p = P[n - 1];
+
+    Circle mec = welzlRecursive(P, R, n - 1);
+    
+    long double d2 = dist2(mec.c, p);
+    if (d2 <= mec.r * mec.r + 1e-12L) {
+        return mec;
+    }
+
+    R.push_back(p);
+    return welzlRecursive(P, R, n - 1);
+}
+
+Circle minimumEnclosingCircle(vector<Point> pts) {
+    if (pts.empty()) return Circle();
+
+    random_device rd;
+    mt19937 rng(rd());
+    shuffle(pts.begin(), pts.end(), rng);
+
+    vector<Point> R;
+    return welzlRecursive(pts, R, (int)pts.size());
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(NULL);
+    int N; cin >> N;
+    vector<Point> pts(N);
+    for (int i = 0; i < N; ++i) {
+        cin >> pts[i].x >> pts[i].y;
+    }
+    Circle c = minimumEnclosingCircle(pts);
+    cout << fixed << setprecision(10);
+    cout << (double)c.c.x << ' ' << (double)c.c.y << ' ' << (double)c.r << '\n';
+    return 0;
+}
+```
+<br/>
 ### References
-[https://en.wikipedia.org/wiki/Hungarian_algorithm]  
+[https://en.wikipedia.org/wiki/Smallest-circle_problem]  
+[https://www.gamedev.net/reference/articles/article2484.asp]
