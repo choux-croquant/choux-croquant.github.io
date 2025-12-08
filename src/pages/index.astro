@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import TimelineGalleryWrapper from '../components/TimelineGalleryWrapper.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 ---
 
@@ -12,8 +13,8 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	</head>
 	<body class="flex flex-col bg-white text-black dark:bg-black dark:text-white">
 		<Header />
-		<main class="flex flex-1 justify-center p-4 overflow-y-scroll">
-			<h1>공사 중...</h1>
+		<main class="flex-1 overflow-y-auto">
+			<TimelineGalleryWrapper />
 		</main>
 		<Footer />
 	</body>

@@ -1,0 +1,37 @@
+---
+import { TimelineGallery } from '../components/TimelineGallery';
+import type { TimelineItem } from '../components/TimelineGallery';
+
+const items: TimelineItem[] = [
+  {
+    id: 'AFS',
+    period: '2025.06 - 2025.08',
+    title: 'Advanced Formation System(UE Plug-in)',
+    subtitle: '',
+    place: 'Krafton Jungle GameTechLab.',
+    description:
+      '(Team Project) Unreal Engine에서 사용할 수 있는 플러그인 개발을 진행하였습니다. 게임 내에서 캐릭터들이 지능적으로 진형을 갖추고 이동하도록 하는 시스템으로 진형의 형태를 편집하고 조작하는 기능을 포함합니다',
+    media: {
+      type: 'youtube',
+      src: 'O94QXzj-LSY?si=FmCGuy3FKWQKMwIb',
+      title: 'Advanced Formation System',
+    },
+  },
+  {
+    id: 'CustomEngine',
+    period: '2025.03 - 2025.06',
+    title: 'DirectX11 Custom engine',
+    subtitle: '',
+    place: 'Krafton Jungle GameTechLab.',
+    description:
+      '(Team Project) DirectX 11 기반의 자체 게임 엔진 구축을 진행하였습니다. Unreal Engine의 구조와 컨벤션을 기반으로 하여 컴퓨터 그래픽스 및 게임 엔진에 있어 필수적인 내용들을 위주로 구현되었습니다. 이를 통해 Unreal Engine의 소스코드를 확인하며 구조를 파악하였습니다.',
+    media: {
+      type: 'youtube',
+      src: 'QpoZGMiML0Y',
+      title: 'DirectX11 Custom Engine',
+    },
+  },
+];
+---
+
+<TimelineGallery items={items} client:visible />
