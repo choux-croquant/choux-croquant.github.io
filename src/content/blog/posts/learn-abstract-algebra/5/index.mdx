@@ -1,0 +1,312 @@
+---
+title: '버츄얼 유튜버로 현대대수학을 배워보자 - 5, 6'
+description: 'Learn abstract algebra with virtual youtube'
+pubDate: 'December 23 2025'
+thumbnail: ''
+category: 'Math'
+subCategory: 'Abstract algebra'
+migrated: false
+---
+import { YouTube } from 'astro-embed';
+import Caption from '@/components/Caption.tsx';
+
+https://youtu.be/Ggd_Bbj0vzM?si=kvWsOdj1ViXCt3Cj
+
+<Caption text="버튜버 연떠 님의 현대 대수학 강의"/>
+
+### 합동의 정의
+
+양의 정수 $n$에 대하여, 정수 $a,b$가 다음을 만족하면  
+$$
+a \equiv b \pmod n \;\;\Longleftrightarrow\;\; n \mid (a-b)
+$$
+라고 정의하고, $a$와 $b$는 $n$에 대해 합동이라고 표현한다.
+
+즉,
+$$
+a \equiv b \pmod n \;\;\Longleftrightarrow\;\; a,b \text{를 } n\text{으로 나눈 나머지가 같다}
+$$  
+이다. $a = nq_1 + r,\; b = nq_2 + r$ 꼴로 표현할 수 있다.
+
+<br/>
+### 소수의 정의(Z)
+
+임의의 정수 $a, b$가 임의로 주어졌을 때  
+$$
+p \mid ab \Rightarrow p \mid a \text{ 또는 } p \mid b
+$$  
+가 항상 성립하면, 1보다 큰 양의 정수 $p$를 소수라고 정의한다. (유클리드 보조정리)
+
+다음과 같이 표현해도 동일한 의미
+
+$$
+ab \equiv 0 \pmod p \;\Rightarrow\;
+\bigl(a \equiv 0 \pmod p \;\text{ 또는 }\; b \equiv 0 \pmod p\bigr)
+$$
+
+<br/>
+### 생성의 정의
+
+정수의 부분집합 $S \subset \mathbb{Z}$에 대해,  
+$$
+\langle S \rangle 
+= \{\, a_1 s_1 + \cdots + a_k s_k \mid k \in \mathbb{N},\, a_i \in \mathbb{Z},\, s_i \in S \,\}
+$$
+를 $S$가 생성하는 집합이라고 한다.  
+
+- 한 요소만 있을 때 $S = \{a\}$이면  
+  $$\langle a \rangle = \{ka \mid k \in \mathbb{Z}\}$$  
+  로, $a$의 모든 정수배로 이루어진 집합이다.  
+- 두 수 $a,b$가 있을 때는  
+  $$\langle a,b \rangle = \{xa + yb \mid x,y \in \mathbb{Z}\}$$  
+  로, $a,b$의 모든 일차결합의 집합이다.
+
+<br/>
+### 생성과 최대공약수
+
+두 정수 $a,b$에 대해 생성 집합 $\langle a,b \rangle$는 어떤 하나의 정수 $d$에 의해 다음처럼 쓸 수 있다.
+$$
+\langle a,b \rangle = \{xa + yb \mid x,y \in \mathbb{Z}\} = \{kd \mid k \in \mathbb{Z}\}.
+$$
+이때 이 $d$가 바로 $\gcd(a,b)$가 된다.  
+
+- 즉, 최대공약수 $d = \gcd(a,b)$를 $$\gcd(a,b) = \min\{\, n \in \mathbb{N} \mid n \in \langle a,b \rangle,\ n>0 \,\}$$ 처럼 $\langle a,b \rangle$ 안에 있는 양의 정수 중 가장 작은 것으로 정의할 수 있다.  
+- 동시에 임의의 $g$가 $a,b$의 공약수이면 $g \mid d$가 성립하여, $d$가 가장 큰 공약수라는 성질도 만족한다.
+- $d = \gcd(a,b)$는 $a,b$가 생성하는 모든 일차결합의 공약수이면서,  
+- 그 집합을 하나의 원소로 생성할 수 있게 해주는 대표 생성자라고 볼 수 있다.
+
+<br/>
+### 합동이 가지는 기본 성질 (동치관계)
+
+합동은 다음 세 성질을 만족한다.
+
+- 반사성: 모든 정수 $a$에 대해  
+  $$a \equiv a \pmod n.$$
+- 대칭성: $a \equiv b \pmod n$이면  
+  $$b \equiv a \pmod n.$$
+- 추이성: $a \equiv b \pmod n$이고 $b \equiv c \pmod n$이면  
+  $$a \equiv c \pmod n.$$
+
+-> $n$에 대해 합동인 정수들을 하나의 동치류로 묶어서 생각할 수 있다.
+
+<br/>
+### 합동식 연산 성질
+
+등식과 비슷하게, 합동식은 덧셈/뺄셈/곱셈에 대해 잘 호환된다.
+
+- 덧셈, 뺄셈  
+  $$a \equiv b \pmod n,\;\; c \equiv d \pmod n$$  
+  이면  
+  $$(a+c) \equiv (b+d) \pmod n,$$  
+  $$(a-c) \equiv (b-d) \pmod n.$$
+- 곱셈  
+  $$a \equiv b \pmod n,\;\; c \equiv d \pmod n$$  
+  이면  
+  $$(ac) \equiv (bd) \pmod n.$$
+- 상수배 $a \equiv b \pmod n$이면 임의의 정수 $k$에 대해  
+  $$ka \equiv kb \pmod n.$$
+
+이러한 성질을 활용하여, 합동식 안에서는 등식처럼 양변에 같은 수를 더하거나 곱해도 합동 관계가 유지된다.
+
+<br/>
+### 합동식의 나눗셈
+
+정수 $a,b,c,m$에 대해 $m \ge 2$라 하자.
+합동식
+$$
+ac \equiv bc \pmod m
+$$
+이 성립한다고 하자. 이때
+$$
+g = \gcd(c,m)
+$$
+라 두면, 다음이 성립한다.
+
+$$
+ac \equiv bc \pmod m \quad\Longleftrightarrow\quad a \equiv b \pmod{\dfrac{m}{\gcd(c,m)}}
+$$  
+  
+특히 $g = \gcd(c,m) = 1$이면
+$$
+ac \equiv bc \pmod m \;\Rightarrow\; a \equiv b \pmod m
+$$
+
+<br/>
+### 합동식의 거듭제곱
+합동식은 거듭제곱에 대해 합동을 유지한다.
+$$
+a \equiv b \pmod n
+$$
+이면, 모든 자연수 $k \ge 1$에 대하여 아래의 합동식이 성립한다.
+$$
+a^k \equiv b^k \pmod n
+$$
+
+
+1. $k=1$인 경우 $$a^1 = a,\quad b^1 = b$$ 이므로 명제는 $a \equiv b \pmod n$ 자체이므로 자명하다.
+
+2. 어떤 $k$에 대해 $$a^k \equiv b^k \pmod n$$ 이 성립한다고 가정한다.
+
+3. $k+1$인 경우  
+   $$
+   a^{k+1} = a^k \cdot a,\quad
+   b^{k+1} = b^k \cdot b.
+   $$
+   여기서
+   - 가정에 의해 $a^k \equiv b^k \pmod n$,  
+   - 처음 가정에서 $a \equiv b \pmod n$.  
+
+   합동식의 곱셈 호환성(곱셈에 대해 합동 보존)에 의해 다음이 성립한다.
+   $$
+   a^{k+1} = a^k a \equiv b^k b = b^{k+1} \pmod n
+   $$
+
+<br/>
+### 일차합동식
+
+다음의 형태를 가진 합동식을 일차합동식이라고한다.
+
+- $ax \equiv b \pmod n$  
+- $a,b,n$은 정수이고, $n \ge 2$인 양의 정수
+
+이 식은 정의에 따라
+$$
+ax \equiv b \pmod n
+\;\Longleftrightarrow\;
+n \mid (ax - b)
+\;\Longleftrightarrow\;
+ax - b = ny \text{ 인 정수 } y \text{ 가 존재}
+$$
+$$
+ax + (-n)y = b
+$$
+라는 선형 디오판토스 방정식과 완전히 같은 문제이다.
+
+<br/>
+### 일차합동식의 해가 존재할 조건
+
+$d = \gcd(a,n)$이라 하면, 일차합동식 $ax \equiv b \pmod n$의 정수 해가 존재할 필요충분조건은 다음과 같다.
+$$
+d \mid b \text{ 즉,  $b$가 $d$의 배수인 것}
+$$
+
+- 선형 디오판토스 방정식 $ax + (-n)y = b$는 $\gcd(a,n)$이 $b$를 나눌 때에만 해가 존재한다.
+- 따라서 $d \nmid b$이면 일차합동식은 해가 없고, $d \mid b$이면 해가 존재한다.
+
+또한 $d \mid b$일 때
+
+- 법 $n$에 대해 서로 다른 해(서로 합동이 아닌 해)의 개수는 정확히 $d$개이다.
+- 특히 $\gcd(a,n)=1$이면, 해는 법 $n$에서 정확히 하나의 동치류만 가진다.
+
+<br/>
+### 일차합동식의 해 구하기
+
+$d = \gcd(a,n)$이고, $d \mid b$라고 하자. $a = d a'$, $n = d n'$, $b = d b'$로 두면 $\gcd(a',n') = 1$이다.  
+원래 식
+$$
+ax \equiv b \pmod n
+$$
+을 $d$로 나누면
+$$
+a'x \equiv b' \pmod{n'}
+$$
+를 얻게 되고, 여기서는 $\gcd(a',n')=1$이라 역원을 이용할 수 있다.
+
+#### $\gcd(a,n)$과 나눗셈으로 단순화
+
+1. $d = \gcd(a,n)$을 구한다.
+2. 만약 $d \nmid b$이면 “해가 없다”.
+3. $d \mid b$이면 $a = d a'$, $n = d n'$, $b = d b'$로 두고
+   $$
+   a'x \equiv b' \pmod{n'}
+   $$
+   로 단순화한다.
+
+#### 단순화된 식에서 특수해 구하기
+
+$\gcd(a',n') = 1$이므로, $a'$는 법 $n'$에서 곱셈 역원을 가진다.
+
+1. 확장 유클리드 알고리즘으로 정수 $u,v$를 찾아
+   $$
+   a'u + n'v = 1
+   $$
+   을 만족시킨다.  
+   이때 $u$를 $a'$의 법 $n'$에서의 역원이라 보면 된다:
+   $$
+   a'u \equiv 1 \pmod{n'}.
+   $$
+2. 양변에 $b'$를 곱해
+   $$
+   x_0 \equiv u b' \pmod{n'}
+   $$
+   를 얻는다. 이 $x_0$가 단순화된 식 $a'x \equiv b' \pmod{n'}$의 한 특수해이다.
+
+#### 모든 해의 형태
+
+단순화된 식 $a'x \equiv b' \pmod{n'}$의 모든 해는
+$$
+x \equiv x_0 \pmod{n'}
+$$
+꼴이다.
+
+이를 원래 법 $n$으로 해석하면:
+
+- 서로 다른 해(법 $n$에 대해 합동이 아닌 해)는
+  $$
+  x_0,\; x_0 + n',\; x_0 + 2n',\; \dots,\; x_0 + (d-1)n'
+  $$
+  처럼 총 $d$개이고,
+- 일반해는
+  $$
+  x = x_0 + k n' \quad (k \in \mathbb{Z})
+  $$
+  로 쓸 수 있다.
+
+여기서 $n' = \dfrac{n}{d}$이므로, 해의 간격은 $\dfrac{n}{\gcd(a,n)}$이고, 서로 다른 해의 개수는 $\gcd(a,n)$개라고 요약할 수 있다.
+
+e.g. 
+
+일차합동식
+$$
+7x \equiv 5 \pmod{20}
+$$
+의 해를 구해보면,
+
+먼저
+$$
+\gcd(7,20) = 1
+$$
+이므로 $d = 1$이고, $1 \mid 5$이므로 해가 존재한다. 또한 $d=1$이므로 법 $20$에서 해는 하나의 동치류만 가진다.
+
+$$
+7x \equiv 5 \pmod{20}
+$$
+에서 $7$의 법 $20$에서의 역원 $7^{-1}$을 찾는다. 정수 $u,v$에 대해
+$$
+7u + 20v = 1
+$$
+이 되게 하는 값을 찾으면. $u=3,\; v=-1$이 한 해이다. 따라서
+$$
+7\cdot 3 \equiv 1 \pmod{20}
+$$
+이므로 $7^{-1} \equiv 3 \pmod{20}$이다.
+
+이제 원래 식 양변에 $7^{-1}$을 곱하면
+$$
+x \equiv 7^{-1} \cdot 5 \equiv 3 \cdot 5 \equiv 15 \pmod{20}
+$$
+을 얻는다.
+
+따라서 한 특수해는
+$$
+x_0 = 15
+$$
+이다.
+
+$\gcd(7,20)=1$이므로 모든 해는 다음과 같다.
+$$
+x \equiv 15 \pmod{20}
+$$
+$$
+x = 15 + 20k \quad (k \in \mathbb{Z})
+$$
